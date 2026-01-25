@@ -1,0 +1,100 @@
+def add_setting(dict_settings, t_kv_pair):
+    is_invalid = False
+
+    if not isinstance(t_kv_pair,tuple) or len(t_kv_pair) != 2 or not isinstance(t_kv_pair[0], str) :
+        print('The 2 argument is not tuple, not key-value tuple or the key is not str.')
+        is_invalid = True
+    elif not isinstance(dict_settings,dict):
+        print('The 1 argument is not dict.')
+        is_invalid = True
+    else:
+        key, value = t_kv_pair
+        key = key.lower()
+        value = str(value).lower()
+
+        if key in dict_settings:
+            return f"Setting '{key}' already exists! Cannot add a new setting with this name."
+        else:
+            dict_settings.update({key: value})
+            return f"Setting '{key}' added with value '{value}' successfully!"
+
+    if is_invalid:
+        return False
+
+
+def update_setting(dict_settings, t_kv_pair):
+    is_invalid = False
+
+    if not isinstance(t_kv_pair,tuple) or len(t_kv_pair) != 2 or not isinstance(t_kv_pair[0], str):
+        print('The 2 argument is not tuple or not key-value tuple.')
+        is_invalid = True
+    elif not isinstance(dict_settings,dict):
+        print('The 1 argument is not dict.')
+        is_invalid = True
+    else:
+        key, value = t_kv_pair
+        key = key.lower()
+        value = str(value).lower()
+
+        if key in dict_settings:
+            dict_settings.update({key: value})
+            return f"Setting '{key}' updated to '{value}' successfully!"
+        else:
+            return f"Setting '{key}' does not exist! Cannot update a non-existing setting."
+
+    if is_invalid:
+        return False
+
+
+def delete_setting(dict_settings, key):
+    is_invalid = False
+
+    if not isinstance(key,str):
+        print('The Key is invalid.')
+        is_invalid = True
+    elif not isinstance(dict_settings,dict):
+        print('The 1 argument is not dict.')
+        is_invalid = True
+    else:
+        key = key.lower()
+
+        if key in dict_settings:
+            dict_settings.pop(key)
+            return f"Setting '{key}' deleted successfully!"
+        else:
+            return "Setting not found!"
+
+    if is_invalid:
+        return False
+
+
+def view_settings(dict_settings):
+    is_invalid = False
+    settings = 'Current User Settings:\n'
+
+    
+    if not isinstance(dict_settings,dict):
+        print('The 1 argument is not dict.')
+        is_invalid = True
+    else:
+
+        if not dict_settings:
+            return f"No settings available."
+        else:
+            for key, value in dict_settings.items():
+                settings += f'{key.capitalize()}: {value}\n' 
+            return settings
+
+    if is_invalid:
+        return False
+
+test_settings = {'theme': 'dark', 'notifications': 'enabled', 'volume': 'high'}
+
+
+#print(add_setting(test_settings, ('Brightness', '%100')))
+#print(update_setting({'theme': 'light'}, ('volume', 'high')))
+#print(delete_setting(test_settings, "theme"))
+
+#print(view_settings(test_settings))
+
+print(view_settings({'theme': 'dark', 'notifications': 'enabled', 'volume': 'high'}))
