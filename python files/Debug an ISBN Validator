@@ -6,10 +6,7 @@ def validate_isbn(isbn, length):
             return 
         main_digits = isbn[0:length]
         given_check_digit = isbn[length-1]
-        if re.fullmatch(r'\d{9}X',main_digits):
-            main_digits_list = [int(digit) for digit in main_digits[:-1]]
-        else:
-            main_digits_list = [int(digit) for digit in main_digits]
+        main_digits_list = [int(digit) for digit in main_digits[:-1]]
     # Calculate the check digit from other digits
         if length == 10:
             expected_check_digit = calculate_check_digit_10(main_digits_list)
@@ -88,4 +85,4 @@ def main():
     
     
 
-#main()
+main()
