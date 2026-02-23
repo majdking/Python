@@ -1,9 +1,63 @@
+# class Category:
+#     def __init__(self, name):
+#         self.name = name
+#         self.ledger = []
+#     def deposit(self, amount, description=''):
+#         self.ledger.append({'amount': amount, 'description': description})
+#     def withdraw(self, amount, description=''):
+#         if self.check_funds(amount):
+#             self.ledger.append({'amount': -amount, 'description': description})
+#             return True
+#         else:
+#             return False
+
+#     def get_balance(self):
+#         return sum([transaction['amount'] for transaction in self.ledger])
+#     def transfer(self, amount, category):
+#         if self.check_funds(amount):
+#             self.withdraw(amount, f'Transfer to {category.name}')
+#             category.deposit(amount ,f'Transfer from {self.name}')
+#             return True
+#         else:
+#             return False
+
+#     def check_funds(self, amount):
+#         if self.get_balance() < amount:
+#             return False
+#         else:
+#             return True
+
+#     def __str__(self):
+#         return f'*************{self.name}*************\n' + '\n'.join([f"{transaction['description'][:23]:23}{transaction['amount']:7.2f}" for transaction in self.ledger]) + f'\nTotal: {self.get_balance():.2f}'
+
+
+# def create_spend_chart(categories):
+#     chart = 'Percentage spent by category\n'
+#     total_spent = sum([-transaction['amount'] for category in categories for transaction in category.ledger if transaction['amount'] < 0])
+#     category_spent = [sum([-transaction['amount'] for transaction in category.ledger if transaction['amount'] < 0]) for category in categories]
+#     percentages = [(spent / total_spent * 100) for spent in category_spent]
+#     rounded_percentages = [int(percentage) // 10 * 10 for percentage in percentages]
+#     # print(category_spent)
+#     # for i, spent in enumerate(category_spent):
+#         # print(f'{i}  ${spent} {rounded_percentages[i]}%')
+#     for percen in range(100, -1, -10):
+#         chart += f'{percen:>3}| ' + ' '.join(['o' if percentage >= percen else ' ' for percentage in percentages]) + '\n'
+#     chart += (' ' * 4) + '-' * (len(category_spent) * 3 + 1) + '\n'
+#     max_length = max(len(category.name) for category in categories)
+#     for i in range(max_length):
+#         chart += f'{" " * 5}' + ' '.join([category.name[i] if i < len(category.name) else ' ' for category in categories]) + '\n'
+#     return chart
+
+
+# Copilot Code
 class Category:
     def __init__(self, name):
         self.name = name
         self.ledger = []
+
     def deposit(self, amount, description=''):
         self.ledger.append({'amount': amount, 'description': description})
+
     def withdraw(self, amount, description=''):
         if self.check_funds(amount):
             self.ledger.append({'amount': -amount, 'description': description})
@@ -13,41 +67,59 @@ class Category:
 
     def get_balance(self):
         return sum([transaction['amount'] for transaction in self.ledger])
+
     def transfer(self, amount, category):
         if self.check_funds(amount):
             self.withdraw(amount, f'Transfer to {category.name}')
-            category.deposit(amount ,f'Transfer from {self.name}')
+            category.deposit(amount, f'Transfer from {self.name}')
             return True
         else:
             return False
 
     def check_funds(self, amount):
-        if self.get_balance() < amount:
-            return False
-        else:
-            return True
+        return self.get_balance() >= amount
 
     def __str__(self):
-        return f'*************{self.name}*************\n' + '\n'.join([f"{transaction['description'][:23]:23}{transaction['amount']:7.2f}" for transaction in self.ledger]) + f'\nTotal: {self.get_balance():.2f}'
+        title = f"{self.name:*^30}\n"
+        items = ''
+        for t in self.ledger:
+            desc = t['description'][:23]
+            amt = f"{t['amount']:7.2f}"
+            items += f"{desc:23}{amt}\n"
+        total = f"Total: {self.get_balance():.2f}"
+        return title + items + total
 
 
 def create_spend_chart(categories):
     chart = 'Percentage spent by category\n'
-    total_spent = sum([-transaction['amount'] for category in categories for transaction in category.ledger if transaction['amount'] < 0])
-    category_spent = [sum([-transaction['amount'] for transaction in category.ledger if transaction['amount'] < 0]) for category in categories]
-    percentages = [(spent / total_spent * 100) for spent in category_spent]
-    rounded_percentages = [int(percentage) // 10 * 10 for percentage in percentages]
-    # print(category_spent)
-    # for i, spent in enumerate(category_spent):
-        # print(f'{i}  ${spent} {rounded_percentages[i]}%')
-    for percen in range(100, -1, -10):
-        chart += f'{percen:>3}| ' + ' '.join(['o' if percentage >= percen else ' ' for percentage in percentages]) + '\n'
-    chart += (' ' * 4) + '-' * (len(category_spent) * 3 + 1) + '\n'
-    max_length = max(len(category.name) for category in categories)
-    for i in range(max_length):
-        chart += f'{" " * 5}' + ' '.join([category.name[i] if i < len(category.name) else ' ' for category in categories]) + '\n'
-    return chart
+    total_spent = sum([-t['amount'] for c in categories for t in c.ledger if t['amount'] < 0])
+    category_spent = [sum([-t['amount'] for t in c.ledger if t['amount'] < 0]) for c in categories]
+    # round down to nearest 10
+    percentages = [int(spent / total_spent * 100) // 10 * 10 for spent in category_spent]
 
+    # build bar lines
+    for percen in range(100, -1, -10):
+        line = f"{percen:>3}| "
+        for pct in percentages:
+            line += 'o' + '  ' if pct >= percen else ' ' + '  '
+        chart += line + '\n'
+
+    # horizontal line
+    chart += ' ' * 4 + '-' * (len(categories) * 3 + 1) + '\n'
+
+    # category name lines
+    max_length = max(len(c.name) for c in categories)
+    for i in range(max_length):
+        line = ' ' * 5
+        for c in categories:
+            ch = c.name[i] if i < len(c.name) else ' '
+            line += ch + '  '
+        if i < max_length - 1:
+            chart += line + '\n'
+        else:
+            chart += line
+
+    return chart
 
 
 
