@@ -242,3 +242,339 @@ Since your freeCodeCamp page covers inheritance and `super()`, checking the MRO 
 ---
 
 If you want, I can show you how to **predict** the MRO manually using the C3 linearization algorithm, or we can walk through a tricky multiple‑inheritance example together.
+
+
+Here’s a crisp, practical guide to the **most common mistakes people make with `super()`**, especially when learning OOP (and it ties nicely to the inheritance concepts on your freeCodeCamp page).
+
+---
+
+# ⚠️ Common Mistakes When Using `super()`
+
+## ❌ 1. Forgetting to Call `super().__init__()` in Subclasses  
+This is the *number one* beginner mistake.
+
+```python
+class Parent:
+    def __init__(self):
+        self.value = 10
+
+class Child(Parent):
+    def __init__(self):
+        pass   # Parent __init__ never runs!
+```
+
+Result: `Child()` has **no `value` attribute**, because the parent constructor never ran.
+
+### ✔ Correct:
+```python
+class Child(Parent):
+    def __init__(self):
+        super().__init__()
+```
+
+---
+
+## ❌ 2. Calling the Parent Class Directly Instead of Using `super()`  
+Beginners often write:
+
+```python
+Parent.__init__(self)
+```
+
+This *works* in single inheritance, but breaks in multiple inheritance because it ignores the MRO.
+
+### ✔ Correct:
+```python
+super().__init__()
+```
+
+This ensures the next class in the MRO is called.
+
+---
+
+## ❌ 3. Misunderstanding What `super()` Actually Calls  
+People think:
+
+> "`super()` calls the parent."
+
+But it actually calls the **next class in the MRO**, not necessarily the direct parent.
+
+This matters in multiple inheritance.
+
+---
+
+## ❌ 4. Forgetting to Pass Required Arguments  
+If the parent constructor expects arguments, you must pass them.
+
+```python
+class Parent:
+    def __init__(self, x):
+        self.x = x
+
+class Child(Parent):
+    def __init__(self):
+        super().__init__()  # ❌ Missing argument
+```
+
+### ✔ Correct:
+```python
+super().__init__(42)
+```
+
+---
+
+## ❌ 5. Using `super()` Outside of a Class Method  
+`super()` only works inside methods that belong to a class.
+
+This fails:
+
+```python
+def func():
+    super().method()   # ❌ Not inside a class
+```
+
+---
+
+## ❌ 6. Using `super()` in Old‑Style Classes (Python 2 mistake)  
+Not relevant today, but worth knowing:  
+In Python 3, all classes automatically inherit from `object`, so `super()` always works.
+
+---
+
+## ❌ 7. Forgetting That `super()` Works Only in New‑Style Methods  
+If you override a method but forget to call `super()`, you may break the parent’s behavior.
+
+```python
+class Logger:
+    def log(self, msg):
+        print("LOG:", msg)
+
+class FileLogger(Logger):
+    def log(self, msg):
+        print("Saving to file:", msg)  # ❌ Parent log() never runs
+```
+
+### ✔ Correct:
+```python
+def log(self, msg):
+    super().log(msg)
+    print("Saving to file:", msg)
+```
+
+---
+
+## ❌ 8. Misusing `super()` in Multiple Inheritance  
+If you manually call parent classes, you break the MRO chain.
+
+```python
+class B(A):
+    def action(self):
+        A.action(self)  # ❌ Wrong
+```
+
+This causes duplicate calls or skipped classes.
+
+### ✔ Correct:
+```python
+super().action()
+```
+
+---
+
+# 🧠 Quick Summary Table
+
+| Mistake | Why It’s a Problem | Fix |
+|--------|---------------------|------|
+| Not calling `super().__init__()` | Parent state not initialized | Always call it |
+| Calling parent directly | Breaks MRO | Use `super()` |
+| Wrong arguments | Crashes | Pass required args |
+| Using outside class | Not allowed | Only inside methods |
+| Forgetting `super()` in overrides | Breaks parent logic | Call parent version |
+| Manual parent calls in MI | Duplicate or missing calls | Use `super()` everywhere |
+
+---
+
+If you want, I can walk you through a **tricky multiple‑inheritance example** and show exactly how `super()` moves through the MRO.
+
+Let’s dig into **how `super()` works with `__init__()` in deep inheritance hierarchies**, because this is where people either fall in love with `super()`… or get completely confused.  
+Since you’re studying OOP on freeCodeCamp, this explanation will fit right into what you’re learning.
+
+---
+
+# 🧠 The Core Idea  
+When you call:
+
+```python
+super().__init__()
+```
+
+Python does **not** call the parent directly.  
+It calls the **next class in the MRO (Method Resolution Order)**.
+
+This is what makes deep hierarchies and multiple inheritance work smoothly.
+
+---
+
+# 🟦 Example: Deep Single Inheritance  
+Let’s start simple.
+
+```python
+class A:
+    def __init__(self):
+        print("A init")
+
+class B(A):
+    def __init__(self):
+        print("B init")
+        super().__init__()
+
+class C(B):
+    def __init__(self):
+        print("C init")
+        super().__init__()
+
+c = C()
+```
+
+### MRO:
+```
+C → B → A → object
+```
+
+### Output:
+```
+C init
+B init
+A init
+```
+
+Each class calls the next one in the chain.
+
+---
+
+# 🟩 Why This Matters  
+If you *don’t* use `super()`:
+
+```python
+class B(A):
+    def __init__(self):
+        A.__init__(self)   # Hardcoded
+```
+
+Then deep hierarchies break easily, and multiple inheritance becomes a nightmare.
+
+---
+
+# 🟧 Example: Deep Hierarchy With Multiple Inheritance  
+This is where `super()` becomes essential.
+
+```python
+class A:
+    def __init__(self):
+        print("A init")
+
+class B(A):
+    def __init__(self):
+        print("B init")
+        super().__init__()
+
+class C(A):
+    def __init__(self):
+        print("C init")
+        super().__init__()
+
+class D(B, C):
+    def __init__(self):
+        print("D init")
+        super().__init__()
+
+d = D()
+```
+
+### MRO for D:
+```
+D → B → C → A → object
+```
+
+### Output:
+```
+D init
+B init
+C init
+A init
+```
+
+Notice:
+
+- `A.__init__()` runs **once**, even though both B and C inherit from A.
+- No duplicates.
+- No skipped classes.
+- No infinite loops.
+
+This is the magic of `super()` + MRO.
+
+---
+
+# 🟨 What Happens Under the Hood  
+When you call:
+
+```python
+super().__init__()
+```
+
+Python internally does:
+
+1. Look at the class’s MRO.
+2. Find the current class in that list.
+3. Call the **next** class’s `__init__()`.
+
+It’s like passing a baton down a relay race.
+
+---
+
+# 🟪 Common Mistake in Deep Hierarchies  
+Beginners often do this:
+
+```python
+class B(A):
+    def __init__(self):
+        A.__init__(self)   # ❌ breaks MRO
+```
+
+This causes:
+
+- Duplicate calls  
+- Skipped classes  
+- Hard‑to‑debug behavior  
+
+Always use:
+
+```python
+super().__init__()
+```
+
+---
+
+# 🧠 Mental Model  
+Think of the MRO as a **queue**:
+
+```
+[D] → [B] → [C] → [A] → [object]
+```
+
+Each `super()` call simply moves to the next box.
+
+---
+
+# 🟫 Summary  
+`super()` with `__init__()` in deep hierarchies:
+
+- Calls the next class in the MRO  
+- Ensures every class runs exactly once  
+- Prevents duplicate initialization  
+- Makes multiple inheritance safe  
+- Keeps your code clean and maintainable  
+
+---
+
+If you want, I can walk you through a **custom MRO example** and show how Python computes it using the C3 linearization algorithm.
