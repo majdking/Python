@@ -1,0 +1,49 @@
+class HashTable:
+    def __init__(self):
+        self.collection = {}
+    
+    def hash(self, string):
+        if not isinstance(string, str):
+            raise TypeError('The input is not string')
+        return sum([ord(char) for char in string])
+
+    def add(self, key, value):
+        hashed_key = self.hash(key)
+        if hashed_key in self.collection:
+            self.collection[hashed_key][key] = value
+        else:
+            self.collection[hashed_key] = {key: value}  
+
+
+    def remove(self, key):
+        hashed_key = self.hash(key)
+        if hashed_key in self.collection:
+            if key in self.collection[hashed_key]:
+                del self.collection[hashed_key][key]
+
+    def lookup(self, key):
+        hashed_key = self.hash(key)
+        if hashed_key in self.collection:
+            if key in self.collection[hashed_key]:
+                return self.collection[hashed_key][key]
+            else:
+                return None
+
+hashtable = HashTable()
+#print(HashTable().hash('golf'))
+
+hashtable.add('golf', 'sport')
+hashtable.add('dear', 'friend')
+hashtable.add('read', 'book')
+print(hashtable.collection)
+hashtable.remove('dear')
+print(hashtable.collection)
+print(hashtable.lookup('golf'))
+hashtable.remove('golf')
+print(hashtable.lookup('golf'))
+print(hashtable.lookup('cfc'))
+hashtable.add('rose', 'flower')
+print(hashtable.collection)
+hashtable.add('fcc', 'coding')
+hashtable.add('cfc', 'chemical')
+print(hashtable.collection)
