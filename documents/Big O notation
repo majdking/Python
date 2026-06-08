@@ -1,0 +1,13 @@
+The Big O time complexity for an algorithm with 20n² + 15n + 7 operations is O(n²).
+
+Here's why:
+
+Focus on the dominant term: In Big O notation, we are interested in how the runtime of an algorithm scales as the input size (n) approaches infinity. When n gets very large, the term with the highest power of n will dominate the growth of the function. In this expression, n² grows much faster than n or a constant.
+Ignore constant coefficients: Constant coefficients (like 20 in 20n² or 15 in 15n) are dropped because they don't significantly affect the rate of growth, only the absolute value. For example, 2n² still grows quadratically, just twice as fast as n².
+Ignore lower-order terms: Similarly, lower-order terms (like 15n and 7) become negligible compared to the dominant term as n increases.
+So, for 20n² + 15n + 7:
+
+The highest power of n is n².
+Dropping the constant coefficient 20 gives n².
+Dropping the lower-order terms 15n and 7 leaves n².
+Thus, the Big O complexity is O(n²), which is referred to as quadratic time complexity.
